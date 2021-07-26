@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     Vector2 mouseInput;
     public float gravity;
     public float jumpForce;
-    bool canJump;
+    public bool canJump;
     public Transform groundCheck;
     public LayerMask groundMask;
     bool canDoubleJump;

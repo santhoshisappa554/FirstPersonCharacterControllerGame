@@ -13,10 +13,15 @@ public class EnemyController : MonoBehaviour
     public NavMeshAgent agent;
     Vector3 startPoint;
     public float keepChasingTime,chasecounter;
+    public GameObject enemyBulletPrefab;
+    public Transform enemyFirePoint;
+    public float fireRate,firecount,fireWaitCounter,waitBetweenShoots,ShootTimecounter;//enemy fire Rate controller
     // Start is called before the first frame update
     void Start()
     {
         startPoint = transform.position;
+        ShootTimecounter = 1.0f;
+        fireWaitCounter = waitBetweenShoots;
     }
 
     // Update is called once per frame
@@ -27,6 +32,9 @@ public class EnemyController : MonoBehaviour
             if (Vector3.Distance(transform.position, PlayerController.instance.transform.position)<distanceTochase)
             {
                 chasing = true;
+                //firecount = 1.0f;
+                ShootTimecounter = 1f;
+                fireWaitCounter = waitBetweenShoots;
             }
             if (chasecounter > 0)
             {
@@ -57,6 +65,48 @@ public class EnemyController : MonoBehaviour
                 agent.destination = startPoint;
                 chasecounter = keepChasingTime;
             }
+            if (fireWaitCounter > 0)
+            {
+                fireWaitCounter -= Time.deltaTime;
+                if (fireWaitCounter <= 0)
+                {
+                    ShootTimecounter = 1f;
+                }
+            }
+
+            else
+            {
+                ShootTimecounter -= Time.deltaTime;
+                if (ShootTimecounter > 0)
+                {
+                    firecount -= Time.deltaTime;
+                    if (firecount <= 0)
+                    {
+                        firecount = fireRate;
+                        enemyFirePoint.LookAt(PlayerController.instance.transform.position+new Vector3(0,1.5f,0));
+                        Vector3 targetDirection = PlayerController.instance.transform.position - transform.position;
+                        float angle = Vector3.SignedAngle(targetDirection, transform.forward, Vector3.up);
+
+                        if (Mathf.Abs(angle) < 40f)
+                        {
+                            Instantiate(enemyBulletPrefab, enemyFirePoint.position, enemyFirePoint.rotation);
+                        }
+                        else
+                        {
+                            fireWaitCounter = waitBetweenShoots;
+                        }
+
+                       
+                    }
+                }
+                else
+                {
+                    fireWaitCounter = waitBetweenShoots;
+                }
+            }
+
+           
+
         }
 
     }
